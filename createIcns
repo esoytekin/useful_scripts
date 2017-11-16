@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ -z $2 ]; then
+  echo "usage: `basename "$0"` <input png> <output file name>"
+  exit 1
+fi
+
+input=$1
+output=$2
+
+extension="${input##*.}"
+
+if [[ ! $extension =~ ^(png)$ ]]; then
+    echo "only works on 'png' files, your file is '$extension'"
+    exit 1
+fi
+
+/bin/mkdir "$output.iconset"
+/usr/bin/sips -z 16 16     $input --out $output.iconset/icon_16x16.png
+/usr/bin/sips -z 32 32     $input --out $output.iconset/icon_16x16@2x.png
+/usr/bin/sips -z 32 32     $input --out $output.iconset/icon_32x32.png
+/usr/bin/sips -z 64 64     $input --out $output.iconset/icon_32x32@2x.png
+/usr/bin/sips -z 128 128   $input --out $output.iconset/icon_128x128.png
+/usr/bin/sips -z 256 256   $input --out $output.iconset/icon_128x128@2x.png
+/usr/bin/sips -z 256 256   $input --out $output.iconset/icon_256x256.png
+/usr/bin/sips -z 512 512   $input --out $output.iconset/icon_256x256@2x.png
+/usr/bin/sips -z 512 512   $input --out $output.iconset/icon_512x512.png
+/bin/cp $input $output.iconset/icon_512x512@2x.png
+/usr/bin/iconutil -c icns $output.iconset
+/bin/rm -R $output.iconset

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ "$#" -lt 1 ]; then
+    echo "Illegal number of parameters"
+    exit 1
+fi
+filename="$(echo "$1" | sed 's/ /%20/g')"
+
+curl https://yts.ag/api/v2/list_movies.json?query_term=$filename > torrentData.json
+
+torrentHash=$(python /usr/local/bin/torrent.py )
+
+rm torrentData.json
+
+if [ ! -z $torrentHash ]; then
+    #if [ ! -z $2 ] && [  $2 == "--enable" -o $1 == "--enable" ]; then
+    magnetLink="magnet:?xt=urn:btih:$torrentHash"
+    echo $magnetLink
+    if [ ! -z $2 ] && [  $2 == "--enable" ]; then
+        #/Applications/qbittorrent.app/Contents/MacOS/qbittorrent $torrentHash &
+
+        echo "adding torrent file."
+        btc add -u $magnetLink 
+    else 
+        echo "'torrentx $1 --enable' to download"
+    fi
+else
+    echo "torrent not found"
+fi

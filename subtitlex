@@ -1,0 +1,86 @@
+#!/bin/bash
+
+if [ -z $2 ]; then
+  echo "usage: `basename "$0"` <parameters> <avi name>"
+  echo "Paramaters: "
+  echo "-d : download related subtitle"
+  echo "-t : translate subtitle to utf8"
+  echo "-w : watch movie."
+  echo "example: `basename "$0"` -dtw movie.avi"
+  exit 1
+fi
+
+getEncoding()
+{
+    fname=$( /usr/bin/file -I "$1" )
+    IFS=':' read -r -a array <<< "$fname"
+    IFS=';' read -r -a array <<< "${array[1]}"
+    IFS='=' read -r -a array <<< "${array[1]}"
+    encoding=${array[1]}
+    echo $encoding
+}
+
+translate()
+{
+    #encoding=$1
+    #if [ $encoding == "iso-8859-1" ]; then
+        #encoding="iso-8859-9"
+    #fi
+    #fix for unkown utf8 encoding 
+    encoding="iso-8859-9"
+    /usr/bin/iconv -f $encoding -t utf-8 $2.tr.srt  > $2.utf8.srt
+    /bin/rm $2.tr.srt
+    /bin/mv $2.utf8.srt $2.tr.srt
+}
+
+x=$2
+
+extension="${x##*.}"
+
+if [[ ! $extension =~ ^(avi|mp4|mkv|wmv)$ ]]; then
+    echo "only works on avi,mp4,wmv and mkv files. your file is $extension."
+    exit 1
+fi
+
+y=${x%.*}
+while getopts ":dtw" opts; do
+   case ${opts} in
+      d) 
+      echo "downloading subtitle."
+      /usr/local/bin/subliminal download -l tr $x >&2
+      ;;
+      t) 
+      if [ -f $y.tr.srt ]; then
+          echo "translating subtitle."
+          encoding=$(getEncoding $y.tr.srt)
+          if [ $encoding == 'utf-8' ]; then
+             echo "file encoding is utf-8. nothing to be done."
+          else
+             echo "file encoding is $encoding. converting to utf-8"
+             translate $encoding $y
+          fi
+      else
+          echo "file $y.tr.srt does not exists.."
+          exit 1
+      fi
+      ;;
+      w)
+      if [ -f $y.tr.srt ]; then
+      /Applications/VLC.app/Contents/MacOS/VLC $x &
+      else
+          echo "cant play media."
+          echo "file $y.tr.srt does not exists.."
+          exit 1
+      fi
+      ;;
+      \?)
+      echo "invalid option : -$OPTARG" >&2
+      exit 1
+      ;;
+      :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+   esac
+done
+
