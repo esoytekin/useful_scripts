@@ -32,7 +32,7 @@ torrentx <requested movie>
 for example:
 
 ```
-torrent 'Walle'
+torrentx 'Walle'
 ```
 
 searchs and downloads the movie 'WallE'
