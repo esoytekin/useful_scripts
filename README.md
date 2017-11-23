@@ -1,4 +1,5 @@
 # useful_scripts
+[TOC]
 
 ## createIcns
 creates icns file (osx icon file) from png image
