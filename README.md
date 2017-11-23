@@ -1,5 +1,4 @@
 # useful_scripts
-[TOC]
 
 ## createIcns
 creates icns file (osx icon file) from png image
@@ -25,7 +24,7 @@ subtitlex -dt <videoFileName>
 ## torrentx
 searchs torrent file for given file name and starts utorront client for this file
 
-###usage
+### usage
 ```
 torrentx <requested movie>
 ```
